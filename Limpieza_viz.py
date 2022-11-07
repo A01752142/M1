@@ -2,7 +2,7 @@
 #Sandra Ximena Téllez Olvera A01752142
 #Naomi Anciola Calderón A01750363
 
-from Limpieza_viz import *
+from Limpieza import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 
