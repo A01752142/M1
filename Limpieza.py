@@ -37,21 +37,3 @@ class EstadoMesas(Agent):
         self.live = self.next_state
 
 
-class GameLifeModel(Model):
-    '''
-    Define el modelo del juego de la vida.
-    '''
-    def __init__(self, width, height):
-        self.num_agents = width * height
-        self.grid = SingleGrid(width, height, True)
-        self.schedule = SimultaneousActivation(self)
-        self.running = True #Para la visualizacion usando navegador
-        
-        for (content, x, y) in self.grid.coord_iter():
-            a = GameLifeAgent((x, y), self)
-            self.grid.place_agent(a, (x, y))
-            self.schedule.add(a)
-        
-    
-    def step(self):
-        self.schedule.step()
