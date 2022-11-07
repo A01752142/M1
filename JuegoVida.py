@@ -1,7 +1,9 @@
-#Autoras:
-#Sandra Ximena Téllez Olvera A01752142
-#Naomi Anciola Calderón A01750363
-
+"""
+    Juego de la Vida
+    Autor: Edgar Covantes
+    Adaptación: Jorge Rmz Uresti
+    Octubre, 2021
+"""
 # La clase `Model` se hace cargo de los atributos a nivel del modelo, maneja los agentes. 
 # Cada modelo puede contener múltiples agentes y todos ellos son instancias de la clase `Agent`.
 from mesa import Agent, Model 
@@ -57,7 +59,7 @@ class GameLifeAgent(Agent):
         '''
         self.live = self.next_state
             
-class Limpiar(Model):
+class GameLifeModel(Model):
     '''
     Define el modelo del juego de la vida.
     '''
@@ -75,5 +77,3 @@ class Limpiar(Model):
     
     def step(self):
         self.schedule.step()
-
-
