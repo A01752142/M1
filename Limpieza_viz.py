@@ -34,7 +34,7 @@ def limpiador(agent):
 #Definición del Grid
 ancho = 50
 alto = 30
-grid = CanvasGrid(mesas,limpiador, ancho, alto, 750, 750)
+grid = CanvasGrid(mesas, ancho, alto, 750, 750)
 
 #Launch
 server = ModularServer(Limpiar,
