@@ -7,14 +7,14 @@ from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 
 #Definición de agentes
-def mesas(agent):
+def celdas(agent):
     portrayal = {"Shape": "square",
                  "Filled": "true",
                  "Layer": 0,
                  "Color": "red"
                  }
 
-    if mesas.dirty == 1: #En caso de que las mesas estén sucias
+    if celdas.dirty == 1: #En caso de que las mesas estén sucias
         portrayal["Colour"] = "red"
         portrayal["Layer"] = 0
     else: #Si las mesas están limpias
@@ -23,18 +23,18 @@ def mesas(agent):
 
     return portrayal
 
-def limpiador(agent):
-    portrayal = {"Shape": "circle",
-                 "Filled": "true",
-                 "Layer": 0,
-                 "Color": "green",
-                 "r":0.5
-                 }
+#def limpiador(agent):
+ #   portrayal = {"Shape": "circle",
+  #               "Filled": "true",
+   #              "Layer": 0,
+    #             "Color": "green",
+     #            "r":0.5
+      #           }
 
 #Definición del Grid
 ancho = 50
 alto = 30
-grid = CanvasGrid(mesas,limpiador, ancho, alto, 750, 750)
+grid = CanvasGrid(celdas, ancho, alto, 750, 750)
 
 #Launch
 server = ModularServer(Limpiar,
