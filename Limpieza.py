@@ -21,50 +21,48 @@ class LimpiadorAgente(Agent):
     def __init__(self, unique_id, model): 
         super().__init__(unique_id, model)
     
-    def siguientecelda(self):
+    def posicion(self): 
         """
-        Función que envía al limpiador a una celda cercana de forma aleatoria
+        Esta funcion se encarga de mover a los limpiadores a través de las celdas
         """
-        
-        # Busca celdas limpias para mover al limpiador
-        ubirandom = self.model.grid.get_neighborhood(
+        # Busca celdas limpias para cambiar de posición a los limpiadores
+        possible_steps = self.model.grid.get_neighborhood(
             self.pos,
             moore=True,
             include_center=False)
-        
-        # Escoge una celda limpia aleatoria
-        nuevaubi = self.random.choice(ubirandom)
-        
-        # Se mueve al limpiador a la celda seleccionada
-        self.model.grid.siguientecelda_agent(self, nuevaubi)
+    
+        new_position = self.random.choice(possible_steps)
+
+        self.model.grid.move_agent(self, new_position)
 
     def limpiar(self, agent): 
         """
-        Se encarga de limpiar la celda sucia
+        Limpiar las celdas
         """
         self.model.grid.remove_agent(agent)
         self.model.celdaslimpias += 1
 
-    def movimiento(self):
+    def step(self): 
         """
-        Define el movimiento de los limpiadores, ya sea para limpiar o moverse
+        Le da función a los limpiadores (limpiar o moverse)
         """
+        # Obtiene todos los objetos de una celda
         gridContent = self.model.grid.get_cell_list_contents([self.pos])
         sucio = False
-        elementoSucio = None
+        suciedadencelda = None
         
-        # Busca celdas sucias
+        # Verifica si la celda está limpia o sucia
         for element in gridContent:
             if isinstance(element, CeldasSucias):
                 sucio = True
-                elementoSucio = element
-        # Si no se encuentra basura mover al agente
+                suciedadencelda = element
+        # Si no está sucio, el limpiador se mueve
         if not sucio:
             LimpiadorAgente.pasostotales += 1
-            self.siguientecelda()
-        # Si se encuentra basura, eliminarla
+            self.posicion()
+        # Limpiar si está sucio
         else:
-            self.limpiar(elementoSucio)
+            self.limpiar(suciedadencelda)
 
 class LimpiezaModel(Model): 
     def __init__(self, numAgents, m, n, celdassucias, tiempoejecucion):
@@ -77,66 +75,64 @@ class LimpiezaModel(Model):
         # Cantidad de pasos usados para la limpieza
         self.stepsTime = 0
         # Cantidad de celdas sucias
-        self.dirtyCells = int((celdassucias * (n*m)) / 100)
+        self.estaSucio = int((celdassucias * (n*m)) / 100)
         # Número de celdas que han sido limpiadas
-        self.celdasLimpias = 0
+        self.celdaslimpias = 0
         # Schedule
         self.schedule = RandomActivation(self)
-        # Estado de la simulación
+        # Estado
         self.running = True
-        # Bool que representa si ya se terminó de limpiar toda la basura
+        # Representa si todas las celdas están limpias o no 
         self.cleanLimit = False
         
-        # Creación de agentes aspiradoras
+        # Creación de limpiadores
         for i in range(0,self.numAgents):
-            # Crear agente y agregarlo al schedule
+            # Generar limpiadores y agregarlos al grid
             a = LimpiadorAgente(i, self)
             self.schedule.add(a)
-            
-            # Colocar al agente en la posición (1,1)
+            # Posición de inicio del agente
             self.grid.place_agent(a, (1, 1))
 
         
-        # Creación de celdas sucias por medio de un set
-        dirtyCells = set()
-        for t in range(self.numAgents+1,self.dirtyCells+self.numAgents+1):
-            # Crear agente basura y agregarlo al schedule
+        # Generación de celdas sucias
+        estaSucio = set()
+        for t in range(self.numAgents+1,self.estaSucio+self.numAgents+1):
+            # Generar celdas sucias y agregarlas al grid
             b = CeldasSucias(t,self)
             self.schedule.add(b)
             LimpiadorAgente.pasostotales = 0
-            # Establecer coordenadas aleatorias para la basura
+            # Le da una posición aleatoria a las celdas sucias
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             
-            # Evitar poner doble basura en una misma celda
-            while (x,y) in dirtyCells:
+            # Permite que solo haya una sola celda sucia en cada celda
+            while (x,y) in estaSucio:
                 x = self.random.randrange(self.grid.width)
                 y = self.random.randrange(self.grid.height)
-            dirtyCells.add((x,y))
-                        
-            # Colocar el agente en su posición
+            estaSucio.add((x,y))             
+            # Colocar agentes
             self.grid.place_agent(b, (x, y))
 
 
-    def step(self): #Cambiar nombre de función
+    def step(self):
         """
-        Representación de cada paso de la simulación
+        Obtiene cada paso
         """
-        # Determinar si ya se limpiaron todas las celdas
-        if(self.celdasLimpias == self.dirtyCells):
+        # Saber si todas las celdas están limpias
+        if(self.celdaslimpias == self.estaSucio):
             self.cleanLimit = True
 
-        # Imprimir la información solicitada sobre la corrida del modelo
+        # Saber información valiosa
         if(self.cleanLimit or self.tle == self.stepsTime):
                 self.running = False
 
                 if(self.cleanLimit):
-                    print("\nTodas las celdas están limpias \n")
+                    print("\nSe ha completado la limpieza \n")
                 else:
-                    print("Se ha agotado el tiempo límite")
+                    print("No todas las celdas están limpias, pero el tiempo se agoto")
 
-                print("Tiempo transcurrido: " + str(self.stepsTime) + " steps, Porcentaje de celdas limpiadas: " + str(int((self.cleanCells*100)/self.dirtyCells))+ "%")
-                print("Número de movimientos: " + str(LimpiadorAgente.pasostotales))
+                print("Tiempo de ejecucion: " + str(self.stepsTime) + ", El porcentaje de limpieza final es: " + str(int((self.celdaslimpias*100)/self.estaSucio))+ "%")
+                print("Los limpiadores se movieron: " + str(LimpiadorAgente.pasostotales) + " veces")
         # Hacer que todos los agentes den un paso (determinado en sus respectivos modelos)
         else:
             self.stepsTime += 1
