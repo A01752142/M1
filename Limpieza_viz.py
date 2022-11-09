@@ -1,45 +1,41 @@
-#Autoras:
-#Sandra Ximena Téllez Olvera A01752142
-#Naomi Anciola Calderón A01750363
-
 from Limpieza import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 
-#Definición de agentes
-def celdas(agent):
-    portrayal = {"Shape": "square",
+#Vosualización de agentes (celdas sucias y limpiador)
+def agent_portrayal(agent):
+    portrayal = {"Shape": "circle",
                  "Filled": "true",
-                 "Layer": 0,
-                 "Color": "red"
-                 }
+                 "r":0.5}
 
-    if celdas.dirty == 1: #En caso de que las mesas estén sucias
-        portrayal["Colour"] = "red"
-        portrayal["Layer"] = 0
-    else: #Si las mesas están limpias
-        portrayal["Color"] = "blue"
-        portrayal["Layer"] = 1
-
+    # Distinción entre agente Aspiradora y Basura
+    if isinstance(agent, LimpiadorAgente):
+        portrayal["Color"] = "green"
+        portrayal["Layer"] = 0.7
+    else:
+        portrayal["Color"] = "brown"
+        portrayal["Layer"] = 0.5
+        portrayal["r"] = 0.2
     return portrayal
 
-#def limpiador(agent):
- #   portrayal = {"Shape": "circle",
-  #               "Filled": "true",
-   #              "Layer": 0,
-    #             "Color": "green",
-     #            "r":0.5
-      #           }
+#Datos iniciales
+n = 20 #Ancho
+m = 20 #Alto
+numAgents = 4 #Agentes (Limpiadores)
+celdassucias = 70 #Celdas sucias
+tiempoejecucion = 200 #Tiempo máximo de ejecución
 
-#Definición del Grid
-ancho = 50
-alto = 30
-grid = CanvasGrid(celdas, ancho, alto, 750, 750)
 
-#Launch
-server = ModularServer(Limpiar,
+#Inicializar el servidor con base a los parametros
+grid = CanvasGrid(agent_portrayal, n, m, 750, 750)
+server = ModularServer(LimpiezaModel,
                        [grid],
-                       "Cleaning tables",
-                       {"width":ancho, "height":alto})
-server.port = 8521 # The default
+                       "M1 Activity",
+                       {"n": n,
+                        "m": m,
+                        "numAgents": numAgents,
+                        "celdassucias": celdassucias,
+                        "tiempoejecucion": tiempoejecucion})
+server.port = 8521
 server.launch()
+
