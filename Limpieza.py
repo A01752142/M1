@@ -133,7 +133,6 @@ class LimpiezaModel(Model):
 
                 print("Tiempo de ejecucion: " + str(self.stepsTime) + ", El porcentaje de limpieza final es: " + str(int((self.celdaslimpias*100)/self.estaSucio))+ "%")
                 print("Los limpiadores se movieron: " + str(LimpiadorAgente.pasostotales) + " veces")
-        # Hacer que todos los agentes den un paso (determinado en sus respectivos modelos)
         else:
             self.stepsTime += 1
             self.schedule.step()
